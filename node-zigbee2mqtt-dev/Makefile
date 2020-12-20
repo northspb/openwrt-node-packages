@@ -56,12 +56,7 @@ NPM_FLAGS=$(MAKE_VARS) \
 
 define Build/Prepare
 	mkdir -p $(PKG_BUILD_DIR)
-	git clone https://github.com/Koenkk/zigbee2mqtt
-	cd zigbee2mqtt
-	git checkout HEAD -- npm-shrinkwrap.json
-	git fetch
-	git checkout dev
-	git pull
+	git clone --branch dev https://github.com/Koenkk/zigbee2mqtt
 	$(CP) ./* $(PKG_BUILD_DIR)/
 endef
 
