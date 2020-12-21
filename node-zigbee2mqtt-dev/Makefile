@@ -7,7 +7,7 @@ include $(TOPDIR)/rules.mk
 PKG_NPM_NAME:=zigbee2mqtt
 PKG_NAME:=node-$(PKG_NPM_NAME)-dev
 PKG_VERSION:=1.16.2-dev
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 #PKG_SOURCE:=$(PKG_NPM_NAME)-$(PKG_VERSION).tgz
 #PKG_SOURCE_URL:=https://registry.npmjs.org/$(PKG_NPM_NAME)/-/
