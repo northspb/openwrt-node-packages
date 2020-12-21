@@ -7,7 +7,7 @@ include $(TOPDIR)/rules.mk
 PKG_NPM_NAME:=cpx
 PKG_NAME:=node-$(PKG_NPM_NAME)
 PKG_VERSION:=1.5.0
-PKG_RELEASE:=10
+PKG_RELEASE:=11
 
 PKG_SOURCE:=$(PKG_NPM_NAME)-$(PKG_VERSION).tgz
 PKG_SOURCE_URL:=https://registry.npmjs.org/$(PKG_NPM_NAME)/-/
@@ -74,7 +74,15 @@ define Package/node-cpx/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/{node_modules,bin,lib} \
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(LN) ../lib/node/cpx/bin/index.js $(1)/usr/bin/cpx
+	$(LN) ../lib/node/$(PKG_NPM_NAME)/bin/index.js $(1)/usr/bin/cpx
+	$(INSTALL_DIR) $(1)/usr/lib/node_modules
+	$(LN) ../node/$(PKG_NPM_NAME) $(1)/usr/lib/node_modules/$(PKG_NPM_NAME)
+endef
+
+define Package/node-cpx/postrm
+#!/bin/sh
+rm /usr/lib/node_modules/cpx || true
+rm -rf /usr/lib/node/cpx || true
 endef
 
 define Host/Compile
@@ -83,7 +91,7 @@ define Host/Compile
 	npm_config_prefix=$(HOST_INSTALL_DIR)/usr/ \
 	npm_config_cache=$(TMP_DIR)/npm-cache-$(HOSTTMPNPM) \
 	npm_config_tmp=$(TMP_DIR)/npm-tmp-$(HOSTTMPNPM) \
-	npm install -g --no-optional $(HOST_BUILD_DIR)
+	npm install -g $(HOST_BUILD_DIR)
 	rm -rf $(TMP_DIR)/npm-tmp-$(HOSTTMPNPM)
 	rm -rf $(TMP_DIR)/npm-cache-$(HOSTTMPNPM)
 endef
@@ -97,7 +105,7 @@ define Host/Install
 	$(CP) $(HOST_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/{node_modules,bin,lib} \
 		$(1)/lib/node_modules/$(PKG_NPM_NAME)/
 	$(INSTALL_DIR) $(1)/bin
-	$(LN) ../lib/node_modules/cpx/bin/index.js $(1)/bin/cpx
+	$(LN) ../lib/node_modules/$(PKG_NPM_NAME)/bin/index.js $(1)/bin/cpx
 endef
 
 $(eval $(call HostBuild))

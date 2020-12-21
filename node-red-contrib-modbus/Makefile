@@ -7,7 +7,7 @@ include $(TOPDIR)/rules.mk
 PKG_NPM_NAME:=node-red-contrib-modbus
 PKG_NAME:=$(PKG_NPM_NAME)
 PKG_VERSION:=5.13.3
-PKG_RELEASE:=1
+PKG_RELEASE:=3
 
 PKG_SOURCE:=$(PKG_NPM_NAME)-$(PKG_VERSION).tgz
 PKG_SOURCE_URL:=https://registry.npmjs.org/$(PKG_NPM_NAME)/-/
@@ -28,8 +28,8 @@ define Package/node-red-contrib-modbus
   SECTION:=lang
   CATEGORY:=Languages
   TITLE:=Node-RED contribution package for Modbus
-  URL:=https://nodered.org/
-  DEPENDS:=+node +node-red
+  URL:=https://flows.nodered.org/node/node-red-contrib-modbus
+  DEPENDS:=+node +node-red +node-modbus-serial +node-serialport-list
 endef
 
 define Package/node-red-contrib-modbus/description
@@ -55,7 +55,7 @@ define Build/Compile
 	npm_config_prefix=$(PKG_INSTALL_DIR)/usr/ \
 	npm_config_cache=$(TMP_DIR)/npm-cache-$(TMPNPM) \
 	npm_config_tmp=$(TMP_DIR)/npm-tmp-$(TMPNPM) \
-	npm install -g --build-from-source $(PKG_BUILD_DIR)
+	npm install -g --no-optional $(PKG_BUILD_DIR)
 	rm -rf $(TMP_DIR)/npm-tmp-$(TMPNPM)
 	rm -rf $(TMP_DIR)/npm-cache-$(TMPNPM)
 endef
@@ -70,6 +70,14 @@ define Package/node-red-contrib-modbus/install
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/{examples,modbus} \
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
+	$(INSTALL_DIR) $(1)/usr/lib/node_modules
+	$(LN) ../node/$(PKG_NPM_NAME) $(1)/usr/lib/node_modules/$(PKG_NPM_NAME)
+endef
+
+define Package/node-red-contrib-modbus/postrm
+#!/bin/sh
+rm /usr/lib/node_modules/node-red-contrib-modbus || true
+rm -rf /usr/lib/node/node-red-contrib-modbus || true
 endef
 
 $(eval $(call BuildPackage,node-red-contrib-modbus))

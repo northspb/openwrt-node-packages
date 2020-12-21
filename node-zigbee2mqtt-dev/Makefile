@@ -54,10 +54,11 @@ NPM_FLAGS=$(MAKE_VARS) \
 	npm_config_cache=$(TMP_DIR)/npm-cache-$(TMPNPM) \
 	npm_config_tmp=$(TMP_DIR)/npm-tmp-$(TMPNPM)
 
-define Build/Prepare
+define Build/Prepare	
 	mkdir -p $(PKG_BUILD_DIR)
 	git clone --branch dev https://github.com/Koenkk/zigbee2mqtt
 	$(CP) ./zigbee2mqtt/* $(PKG_BUILD_DIR)/
+	rm -rf ./zigbee2mqtt
 endef
 
 

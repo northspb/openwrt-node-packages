@@ -7,7 +7,7 @@ include $(TOPDIR)/rules.mk
 PKG_NPM_NAME:=node-red-node-arduino
 PKG_NAME:=$(PKG_NPM_NAME)
 PKG_VERSION:=0.3.1
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NPM_NAME)-$(PKG_VERSION).tgz
 PKG_SOURCE_URL:=https://registry.npmjs.org/$(PKG_NPM_NAME)/-/
@@ -28,7 +28,7 @@ define Package/node-red-node-arduino
   SECTION:=lang
   CATEGORY:=Languages
   TITLE:=node to talk to an Arduino running firmata
-  URL:=https://nodered.org/
+  URL:=https://flows.nodered.org/node/node-red-node-arduino
   DEPENDS:=+node +node-red +node-firmata
 endef
 
@@ -68,6 +68,14 @@ define Package/node-red-node-arduino/install
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/locales \
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
+	$(INSTALL_DIR) $(1)/usr/lib/node_modules
+	$(LN) ../node/$(PKG_NPM_NAME) $(1)/usr/lib/node_modules/$(PKG_NPM_NAME)
+endef
+
+define Package/node-red-node-arduino/postrm
+#!/bin/sh
+rm /usr/lib/node_modules/node-red-node-arduino || true
+rm -rf /usr/lib/node/node-red-node-arduino || true
 endef
 
 $(eval $(call BuildPackage,node-red-node-arduino))

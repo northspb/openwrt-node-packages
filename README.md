@@ -2,7 +2,7 @@
 
 ## Description
 
-OpenWrt/LEDE Node.js Packages : for trunk / OpenWrt-19.07
+OpenWrt/LEDE Node.js Packages : OpenWrt-19.07
 
 Note: support arches are aarch64, arm, mipsel, mips64el, x86_64
       (mipseb & mips64eb & i386 are not supported)
@@ -15,7 +15,7 @@ See [LICENSE](LICENSE) file.
 
 Add the following line to feeds.conf or feeds.conf.default.
 ```
-src-git node https://github.com/openlumi/openwrt-node-packages.git
+src-git node https://github.com/nxhack/openwrt-node-packages.git;openwrt-19.07
 ```
 
 Run
@@ -24,7 +24,11 @@ Run
 rm ./package/feeds/packages/node
 rm ./package/feeds/packages/node-*
 ./scripts/feeds install -a -p node
+make defconfig
 ```
+
+## Request to add a package is welcome
+If you want a new module (native module) that requires a precompiled binary, ***please open the issue.***
 
 ## Note
 OpenWrt Attitude Adjustment(12.09), Barrier Breaker(14.07), Chaos Calmer(15.05) , LEDE(17.01) , 18.06 are not supported.
@@ -73,7 +77,6 @@ ARM cores without vfp or neon (such as ***bcm53xx***) will not work either. In t
 | :---: | --- | :---: |
 | 32bit | Disable | NO |
 | 32bit | small-icu | YES |
-| 32bit | system-icu | NO |
 | 64bit | Disable | NO |
 | 64bit | small-icu | YES |
 | 64bit | system-icu | YES |
@@ -117,7 +120,7 @@ Also, you have to enable: dbus and avahi-daemon services to start automatically,
 (2)
 avahi on home network
 
-Please read this document. '[Why avahi and bonjour don't work on your home network](https://github.com/culler/querierd/blob/master/README)'
+Please read this document. '[Why avahi and bonjour don't work on your home network](https://github.com/culler/querierd/blob/master/README.rst)'
 
 ***IGMP-querier*** will solve your problem.
 
@@ -127,73 +130,47 @@ OpenWrt custom packages available: https://github.com/nxhack/openwrt-custom-pack
 Specify v8-options.
 
 ```
---max_old_space_size=20 --initial_old_space_size=4 --max_semi_space_size=2 --max_executable_size=5 --optimize_for_size
+--max_old_space_size=80
 ```
 
 Or use [swap](https://openwrt.org/docs/guide-user/storage/fstab?s[]=swap).
 
 ## Modules that use pre-compiled binary (native module)
 ```
-node-alljoyn			[mark @BROKEN]
-node-arduino-firmata		(serialport)
 node-authenticate-pam
+node-aws-crt
+node-bcryp
 node-bignum
-node-binaryjs			(streamws)
-node-bleacon			(bignum,bluetooth-hci-socket)
-node-bluetooth-hci-socket	(usb)
+node-bluetooth-hci-socket
 node-bufferutil
-node-cylon-firmata		(firmata)
 node-deasync
 node-ejdb2_node
-node-enocean-utils		(serialport)
 node-epoll
 node-expat
 node-ffi-napi			(ffi-napi, ref-napi)
-node-firmata			(serialport)
 node-fuse-bindings
-node-hashtable			[mark @BROKEN: use node-megahash]
 node-hid
-node-hid-stream			(node-hid)
+node-homebridge-config-ui-x	(node-pty-prebuilt-multiarch)
 node-i2c-bus
-node-ideino-linino-lib		(epoll)
-node-johnny-five		(firmata, serialport)
-node-level			(leveldown)
 node-leveldown
 node-megahash
-node-mdns			[need select 'y'[*] libavahi-compat-libdnssd for InstallDev libdns_sd.so]
-node-mknod			[mark @BROKEN]
-node-muzzley-client		(ws[legacy])
+node-mdns
 node-net-ping			(raw-socket)
-node-nitrogen			(ws[legacy])
-node-nitrogen-cli		(ws[legacy])
-node-onoff			(epoll)
+node-openzwave-shared
 node-pi-spi
 node-pty
-node-red			(bcrypt)
-node-red-contrib-gpio		(johnny-five)
-node-red-contrib-homekit	(hap-nodejs)
-node-red-contrib-modbus		(@serialport/bindings)
-node-red-node-arduino		(firmata)
-node-reverse-wstunnel
-node-rpi-gpio			(epoll)
 node-rpio
-node-serialport			(@serialport/bindings)
-node-serialport-bindings	(@serialport/bindings)
+node-serialport-bindings
 node-sleep
-node-socket.io-client-legacy	(ws[legacy])
-node-socket.io-legacy		(ws[legacy])
 node-spi-device
 node-sqlite3
 node-statvfs
 node-ubus
 node-usb
 node-utf-8-validate
-node-websocket			(bufferutil, utf-8-validate)
-node-zigbee2mqtt		(@serialport/bindings)
+node-zigbee2mqtt		(@serialport/bindings,unix-dgram)
 ```
 Other modules can be installed by 'npm install'.
-
-***If you want a new module (native module) that requires a precompiled binary, please open the issue.***
 
 ## Package Guidelines
 

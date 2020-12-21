@@ -6,12 +6,12 @@ include $(TOPDIR)/rules.mk
 
 PKG_NPM_NAME:=rimraf
 PKG_NAME:=node-$(PKG_NPM_NAME)
-PKG_VERSION:=3.0.1
-PKG_RELEASE:=1
+PKG_VERSION:=3.0.2
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NPM_NAME)-$(PKG_VERSION).tgz
 PKG_SOURCE_URL:=https://registry.npmjs.org/$(PKG_NPM_NAME)/-/
-PKG_HASH:=81caa300fdc4f94813a7017d2087d4a9cb00048ff83903e6a24936f04f4f30ff
+PKG_HASH:=5876c20fd84707b7056ec61ccee1a71e80fec1657650010bd4dac828bb977f52
 
 PKG_MAINTAINER:=Hirokazu MORIKAWA <morikw2@gmail.com>
 PKG_LICENSE:=ISC
@@ -74,7 +74,15 @@ define Package/node-rimraf/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/node_modules \
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(LN) ../lib/node/rimraf/bin.js $(1)/usr/bin/rimraf
+	$(LN) ../lib/node/$(PKG_NPM_NAME)/bin.js $(1)/usr/bin/rimraf
+	$(INSTALL_DIR) $(1)/usr/lib/node_modules
+	$(LN) ../node/$(PKG_NPM_NAME) $(1)/usr/lib/node_modules/$(PKG_NPM_NAME)
+endef
+
+define Package/node-rimraf/postrm
+#!/bin/sh
+rm /usr/lib/node_modules/rimraf || true
+rm -rf /usr/lib/node/rimraf || true
 endef
 
 define Host/Compile
@@ -97,7 +105,7 @@ define Host/Install
 	$(CP) $(HOST_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/node_modules \
 		$(1)/lib/node_modules/$(PKG_NPM_NAME)/
 	$(INSTALL_DIR) $(1)/bin
-	$(LN) ../lib/node_modules/rimraf/bin.js $(1)/bin/rimraf
+	$(LN) ../lib/node_modules/$(PKG_NPM_NAME)/bin.js $(1)/bin/rimraf
 endef
 
 $(eval $(call HostBuild))

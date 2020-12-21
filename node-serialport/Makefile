@@ -9,12 +9,12 @@ include $(TOPDIR)/rules.mk
 
 PKG_NPM_NAME:=serialport
 PKG_NAME:=node-$(PKG_NPM_NAME)
-PKG_VERSION:=9.0.1
+PKG_VERSION:=9.0.4
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NPM_NAME)-$(PKG_VERSION).tgz
 PKG_SOURCE_URL:=https://registry.npmjs.org/$(PKG_NPM_NAME)/-/
-PKG_HASH:=9f837bc5b64dde03aaf097093a2674789405f436fd367903502d3e2e17fcd4a3
+PKG_HASH:=e19fe993ad16ae0e03fc42e24cfe4babf8fd90f8358e1885d5e216277dda1086
 
 PKG_MAINTAINER:=Hirokazu MORIKAWA <morikw2@gmail.com>
 PKG_LICENSE:=MIT
@@ -58,7 +58,7 @@ define Build/Compile
 	npm_config_prefix=$(PKG_INSTALL_DIR)/usr/ \
 	npm_config_cache=$(TMP_DIR)/npm-cache-$(TMPNPM) \
 	npm_config_tmp=$(TMP_DIR)/npm-tmp-$(TMPNPM) \
-	npm install -g --build-from-source $(PKG_BUILD_DIR)
+	npm install -g $(PKG_BUILD_DIR)
 	rm -rf $(TMP_DIR)/npm-tmp-$(TMPNPM)
 	rm -rf $(TMP_DIR)/npm-cache-$(TMPNPM)
 endef
@@ -71,6 +71,14 @@ define Package/node-serialport/install
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/{node_modules,lib} \
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
+	$(INSTALL_DIR) $(1)/usr/lib/node_modules
+	$(LN) ../node/$(PKG_NPM_NAME) $(1)/usr/lib/node_modules/$(PKG_NPM_NAME)
+endef
+
+define Package/node-serialport/postrm
+#!/bin/sh
+rm /usr/lib/node_modules/serialport || true
+rm -rf /usr/lib/node/serialport || true
 endef
 
 $(eval $(call BuildPackage,node-serialport))

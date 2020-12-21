@@ -90,4 +90,9 @@ define Package/node-zigbee2mqtt/install
 	$(INSTALL_CONF) ./files/configuration.yaml $(1)/etc/zigbee2mqtt/configuration.yaml
 endef
 
+define Package/node-zigbee2mqtt/postrm
+#!/bin/sh
+rm -rf /opt/zigbee2mqtt || true
+endef
+
 $(eval $(call BuildPackage,node-zigbee2mqtt))

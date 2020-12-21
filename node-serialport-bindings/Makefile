@@ -7,12 +7,12 @@ include $(TOPDIR)/rules.mk
 PKG_NPM_SCOPE:=serialport
 PKG_NPM_NAME:=bindings
 PKG_NAME:=node-$(PKG_NPM_SCOPE)-$(PKG_NPM_NAME)
-PKG_VERSION:=9.0.1
+PKG_VERSION:=9.0.4
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NPM_NAME)-$(PKG_VERSION).tgz
 PKG_SOURCE_URL:=https://registry.npmjs.org/@$(PKG_NPM_SCOPE)/$(PKG_NPM_NAME)/-/
-PKG_HASH:=12cd7864a18d2025bf152754c019badaef387c75417fe86b9a80c86ec0ae6b49
+PKG_HASH:=aec200860bd175e4b14b4ab1aa56a5f750172b6c8e20ccb234846206395848d4
 
 PKG_MAINTAINER:=Hirokazu MORIKAWA <morikw2@gmail.com>
 PKG_LICENSE:=MIT
@@ -56,7 +56,7 @@ define Build/Compile
 	npm_config_prefix=$(PKG_INSTALL_DIR)/usr/ \
 	npm_config_cache=$(TMP_DIR)/npm-cache-$(TMPNPM) \
 	npm_config_tmp=$(TMP_DIR)/npm-tmp-$(TMPNPM) \
-	npm install -g --build-from-source $(PKG_BUILD_DIR)
+	npm install -g $(PKG_BUILD_DIR)
 	rm -rf $(TMP_DIR)/npm-tmp-$(TMPNPM)
 	rm -rf $(TMP_DIR)/npm-cache-$(TMPNPM)
 endef
@@ -70,6 +70,17 @@ define Package/node-serialport-bindings/install
 	$(INSTALL_DIR) $(1)/usr/lib/node/@$(PKG_NPM_SCOPE)/$(PKG_NPM_NAME)/build/Release
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/@$(PKG_NPM_SCOPE)/$(PKG_NPM_NAME)/build/Release/bindings.node \
 		$(1)/usr/lib/node/@$(PKG_NPM_SCOPE)/$(PKG_NPM_NAME)/build/Release/
+	$(INSTALL_DIR) $(1)/usr/lib/node_modules/@$(PKG_NPM_SCOPE)
+	$(LN) ../../node/@$(PKG_NPM_SCOPE)/$(PKG_NPM_NAME) \
+		$(1)/usr/lib/node_modules/@$(PKG_NPM_SCOPE)/$(PKG_NPM_NAME)
+endef
+
+define Package/node-serialport-bindings/postrm
+#!/bin/sh
+rm /usr/lib/node_modules/@serialport/bindings || true
+rm -rf /usr/lib/node/@serialport/bindings || true
+rmdir /usr/lib/node_modules/@serialport || true
+rmdir /usr/lib/node/@serialport || true
 endef
 
 $(eval $(call BuildPackage,node-serialport-bindings))
