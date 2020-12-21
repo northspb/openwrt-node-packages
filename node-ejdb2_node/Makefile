@@ -6,12 +6,12 @@ include $(TOPDIR)/rules.mk
 
 PKG_NPM_NAME:=ejdb2_node
 PKG_NAME:=node-$(PKG_NPM_NAME)
-PKG_VERSION:=1.0.40
+PKG_VERSION:=1.0.45
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NPM_NAME)-$(PKG_VERSION).tgz
 PKG_SOURCE_URL:=https://registry.npmjs.org/$(PKG_NPM_NAME)/-/
-PKG_HASH:=7eaf39fd0ffd3c5dad8eacdb8b3e8219c859511d33328d9c0e1f1b7b5e377a9f
+PKG_HASH:=bf1789e955b6624773ee41cc8a22551a1fb56cb332a88a3fac8a84b3d36d9a79
 
 PKG_MAINTAINER:=Hirokazu MORIKAWA <morikw2@gmail.com>
 PKG_LICENSE:=MIT
@@ -46,6 +46,13 @@ TARGET_CFLAGS+=$(FPIC)
 TARGET_CPPFLAGS+=$(FPIC)
 TARGET_LDFLAGS+=-latomic
 
+CMINC_PATH_LIST=$(STAGING_DIR)/usr/include
+ifeq ($(CONFIG_USE_MUSL),y)
+    CMINC_PATH_LIST+=$(TOOLCHAIN_DIR)/include/fortify
+endif
+CMINC_PATH_LIST+=$(TOOLCHAIN_DIR)/include
+CMINC_PATH:=$(subst $(space),:,$(CMINC_PATH_LIST))
+
 define Build/Compile
 	$(MAKE_VARS) \
 	$(MAKE_FLAGS) \
@@ -56,7 +63,7 @@ define Build/Compile
 	npm_config_prefix=$(PKG_INSTALL_DIR)/usr/ \
 	npm_config_cache=$(TMP_DIR)/npm-cache-$(TMPNPM) \
 	npm_config_tmp=$(TMP_DIR)/npm-tmp-$(TMPNPM) \
-	CMAKE_INCLUDE_PATH="$(STAGING_DIR)/usr/include:$(TOOLCHAIN_DIR)/include" \
+	CMAKE_INCLUDE_PATH="$(CMINC_PATH)" \
 	CMAKE_LIBRARY_PATH="$(STAGING_DIR)/usr/lib:$(TOOLCHAIN_DIR)/lib" \
 	npm install -g $(PKG_BUILD_DIR)
 	rm -rf $(TMP_DIR)/npm-tmp-$(TMPNPM)
@@ -74,6 +81,14 @@ define Package/node-ejdb2_node/install
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/linux-x64/ejdb2_node.node \
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/build/Release
+	$(INSTALL_DIR) $(1)/usr/lib/node_modules
+	$(LN) ../node/$(PKG_NPM_NAME) $(1)/usr/lib/node_modules/$(PKG_NPM_NAME)
+endef
+
+define Package/node-ejdb2_node/postrm
+#!/bin/sh
+rm /usr/lib/node_modules/ejdb2_node || true
+rm -rf /usr/lib/node/ejdb2_node || true
 endef
 
 $(eval $(call BuildPackage,node-ejdb2_node))

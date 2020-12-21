@@ -6,12 +6,12 @@ include $(TOPDIR)/rules.mk
 
 PKG_NPM_NAME:=homebridge-camera-ffmpeg
 PKG_NAME:=node-$(PKG_NPM_NAME)
-PKG_VERSION:=3.0.1
-PKG_RELEASE:=1
+PKG_VERSION:=3.0.3
+PKG_RELEASE:=3
 
 PKG_SOURCE:=$(PKG_NPM_NAME)-$(PKG_VERSION).tgz
 PKG_SOURCE_URL:=https://registry.npmjs.org/$(PKG_NPM_NAME)/-/
-PKG_HASH:=8901acba1d089eba75b364fce0ac655986f9849ecee191c65754fb104c425c2c
+PKG_HASH:=0b39f7e20d2986453d800d63995a5dfc3e4b3c2b788c34f8f5142181380d8f9b
 
 PKG_MAINTAINER:=Hirokazu MORIKAWA <morikw2@gmail.com>
 PKG_LICENSE:=ISC Apache-2.0 License
@@ -29,7 +29,7 @@ define Package/node-homebridge-camera-ffmpeg
   CATEGORY:=Languages
   TITLE:=Homebridge Camera FFmpeg
   URL:=https://www.npmjs.com/package/homebridge-camera-ffmpeg
-  DEPENDS:=+node +node-homebridge +node-ffmpeg-for-homebridge
+  DEPENDS:=+node +node-homebridge +node-ffmpeg-for-homebridge +node-mqtt
 endef
 
 define Package/node-homebridge-camera-ffmpeg/description
@@ -68,6 +68,14 @@ define Package/node-homebridge-camera-ffmpeg/install
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/{node_modules,dist} \
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
+	$(INSTALL_DIR) $(1)/usr/lib/node_modules
+	$(LN) ../node/$(PKG_NPM_NAME) $(1)/usr/lib/node_modules/$(PKG_NPM_NAME)
+endef
+
+define Package/node-homebridge-camera-ffmpeg/postrm
+#!/bin/sh
+rm /usr/lib/node_modules/homebridge-camera-ffmpeg || true
+rm -rf /usr/lib/node/homebridge-camera-ffmpeg || true
 endef
 
 $(eval $(call BuildPackage,node-homebridge-camera-ffmpeg))

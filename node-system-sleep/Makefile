@@ -6,12 +6,12 @@ include $(TOPDIR)/rules.mk
 
 PKG_NPM_NAME:=system-sleep
 PKG_NAME:=node-$(PKG_NPM_NAME)
-PKG_VERSION:=1.3.6
-PKG_RELEASE:=1
+PKG_VERSION:=1.3.7
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NPM_NAME)-$(PKG_VERSION).tgz
 PKG_SOURCE_URL:=https://registry.npmjs.org/$(PKG_NPM_NAME)/-/
-PKG_HASH:=ad3088788f04df0a4823853b40d0a39bc59652e60b41412b33287fae193846a1
+PKG_HASH:=e48bd0f43b78c46a28d01a2ab2b5cfbc71b0dd1811aa9f9cae8649b4e996d6b1
 
 PKG_MAINTAINER:=Hirokazu MORIKAWA <morikw2@gmail.com>
 PKG_LICENSE:=none
@@ -55,7 +55,7 @@ define Build/Compile
 	npm_config_prefix=$(PKG_INSTALL_DIR)/usr/ \
 	npm_config_cache=$(TMP_DIR)/npm-cache-$(TMPNPM) \
 	npm_config_tmp=$(TMP_DIR)/npm-tmp-$(TMPNPM) \
-	npm install --build-from-source -g $(PKG_BUILD_DIR)
+	npm install -g $(PKG_BUILD_DIR)
 	rm -rf $(TMP_DIR)/npm-tmp-$(TMPNPM)
 	rm -rf $(TMP_DIR)/npm-cache-$(TMPNPM)
 endef
@@ -66,6 +66,14 @@ define Package/node-system-sleep/install
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/{*.md,*.js} \
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
+	$(INSTALL_DIR) $(1)/usr/lib/node_modules
+	$(LN) ../node/$(PKG_NPM_NAME) $(1)/usr/lib/node_modules/$(PKG_NPM_NAME)
+endef
+
+define Package/node-system-sleep/postrm
+#!/bin/sh
+rm /usr/lib/node_modules/system-sleep || true
+rm -rf /usr/lib/node/system-sleep || true
 endef
 
 $(eval $(call BuildPackage,node-system-sleep))

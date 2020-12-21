@@ -6,12 +6,12 @@ include $(TOPDIR)/rules.mk
 
 PKG_NPM_NAME:=homebridge-cmd4
 PKG_NAME:=node-$(PKG_NPM_NAME)
-PKG_VERSION:=2.3.2
+PKG_VERSION:=2.4.2
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NPM_NAME)-$(PKG_VERSION).tgz
 PKG_SOURCE_URL:=https://registry.npmjs.org/$(PKG_NPM_NAME)/-/
-PKG_HASH:=86a4075948c16a81da00820981d43faffcede2d52b65d895de9b024ae8fa6fd9
+PKG_HASH:=44fca1ebcaa49f4220e5d8dd39e1ae9cdd9aee3fd4450641df4b4080fa444876
 
 PKG_MAINTAINER:=Hirokazu MORIKAWA <morikw2@gmail.com>
 PKG_LICENSE:=MIT
@@ -66,8 +66,16 @@ define Package/node-homebridge-cmd4/install
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/{README.md,*.js} \
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/{node_modules,Extras} \
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/{node_modules,Extras,utils,lib} \
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
+	$(INSTALL_DIR) $(1)/usr/lib/node_modules
+	$(LN) ../node/$(PKG_NPM_NAME) $(1)/usr/lib/node_modules/$(PKG_NPM_NAME)
+endef
+
+define Package/node-homebridge-cmd4/postrm
+#!/bin/sh
+rm /usr/lib/node_modules/homebridge-cmd4 || true
+rm -rf /usr/lib/node/homebridge-cmd4 || true
 endef
 
 $(eval $(call BuildPackage,node-homebridge-cmd4))

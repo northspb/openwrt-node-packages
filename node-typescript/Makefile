@@ -6,12 +6,12 @@ include $(TOPDIR)/rules.mk
 
 PKG_NPM_NAME:=typescript
 PKG_NAME:=node-$(PKG_NPM_NAME)
-PKG_VERSION:=3.7.5
+PKG_VERSION:=4.1.3
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NPM_NAME)-$(PKG_VERSION).tgz
 PKG_SOURCE_URL:=https://registry.npmjs.org/$(PKG_NPM_NAME)/-/
-PKG_HASH:=95d5baa0b7719d1560dc0d8910df3919333b0fb03bdc2dc19c41a0aa9ecf2484
+PKG_HASH:=213b2677e1f29700601c29e4a603eabe63f87f14fa02fd3633bf141aaa4e0e7e
 
 PKG_MAINTAINER:=Hirokazu MORIKAWA <morikw2@gmail.com>
 PKG_LICENSE:=Apache-2.0
@@ -72,8 +72,16 @@ define Package/node-typescript/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/{bin,lib} \
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(LN) ../lib/node/typescript/bin/tsc $(1)/usr/bin/tsc
-	$(LN) ../lib/node/typescript/bin/tsserver $(1)/usr/bin/tsserver
+	$(LN) ../lib/node/$(PKG_NPM_NAME)/bin/tsc $(1)/usr/bin/tsc
+	$(LN) ../lib/node/$(PKG_NPM_NAME)/bin/tsserver $(1)/usr/bin/tsserver
+	$(INSTALL_DIR) $(1)/usr/lib/node_modules
+	$(LN) ../node/$(PKG_NPM_NAME) $(1)/usr/lib/node_modules/$(PKG_NPM_NAME)
+endef
+
+define Package/node-typescript/postrm
+#!/bin/sh
+rm /usr/lib/node_modules/typescript || true
+rm -rf /usr/lib/node/typescript || true
 endef
 
 define Host/Compile
@@ -94,8 +102,8 @@ define Host/Install
 	$(CP) $(HOST_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/{bin,lib} \
 		$(1)/lib/node_modules/$(PKG_NPM_NAME)/
 	$(INSTALL_DIR) $(1)/bin
-	$(LN) ../lib/node_modules/typescript/bin/tsc $(1)/bin/tsc
-	$(LN) ../lib/node_modules/typescript/bin/tsserver $(1)/bin/tsserver
+	$(LN) ../lib/node_modules/$(PKG_NPM_NAME)/bin/tsc $(1)/bin/tsc
+	$(LN) ../lib/node_modules/$(PKG_NPM_NAME)/bin/tsserver $(1)/bin/tsserver
 endef
 
 $(eval $(call HostBuild))

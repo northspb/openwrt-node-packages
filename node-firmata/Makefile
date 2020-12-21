@@ -6,12 +6,12 @@ include $(TOPDIR)/rules.mk
 
 PKG_NPM_NAME:=firmata
 PKG_NAME:=node-$(PKG_NPM_NAME)
-PKG_VERSION:=2.2.0
+PKG_VERSION:=2.3.0
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NPM_NAME)-$(PKG_VERSION).tgz
 PKG_SOURCE_URL:=https://registry.npmjs.org/$(PKG_NPM_NAME)/-/
-PKG_HASH:=37f2016f92950d922640bae901d237b8bdb1ad58b95d0e6bd360fef785b6ccbe
+PKG_HASH:=d4ca66d88eb326e5fdaabafff6ac3a93b3b1c02ddbf61669f10754db02819a05
 
 PKG_MAINTAINER:=Hirokazu MORIKAWA <morikw2@gmail.com>
 PKG_LICENSE:=MIT
@@ -68,6 +68,14 @@ define Package/node-firmata/install
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/{node_modules,lib} \
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
+	$(INSTALL_DIR) $(1)/usr/lib/node_modules
+	$(LN) ../node/$(PKG_NPM_NAME) $(1)/usr/lib/node_modules/$(PKG_NPM_NAME)
+endef
+
+define Package/node-firmata/postrm
+#!/bin/sh
+rm /usr/lib/node_modules/firmata || true
+rm -rf /usr/lib/node/firmata || true
 endef
 
 $(eval $(call BuildPackage,node-firmata))

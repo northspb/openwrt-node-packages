@@ -6,12 +6,12 @@ include $(TOPDIR)/rules.mk
 
 PKG_NPM_NAME:=node-red
 PKG_NAME:=$(PKG_NPM_NAME)
-PKG_VERSION:=1.1.3
-PKG_RELEASE:=1
+PKG_VERSION:=1.2.6
+PKG_RELEASE:=4
 
 PKG_SOURCE:=$(PKG_NPM_NAME)-$(PKG_VERSION).tgz
 PKG_SOURCE_URL:=https://registry.npmjs.org/$(PKG_NPM_NAME)/-/
-PKG_HASH:=58e68164676a8ed40741d90eb7f98348f120c310088c039994858c78356b7f88
+PKG_HASH:=53461c67807019d0c811d9731f6fe173ec7286ab7ba897013d5a9ce8043b42cd
 
 PKG_MAINTAINER:=Hirokazu MORIKAWA <morikw2@gmail.com>
 PKG_LICENSE:=Apache-2.0
@@ -29,22 +29,21 @@ define Package/node-red
   CATEGORY:=Languages
   TITLE:=A visual tool for wiring the Internet of Things
   URL:=https://nodered.org/
-  DEPENDS:=+node +node-npm
+  DEPENDS:=+node +node-npm +node-bcrypt +node-bufferutil +node-utf-8-validate
 endef
 
 define Package/node-red/description
  A visual tool for wiring the Internet of Things
 endef
 
+TAR_OPTIONS+= --strip-components 1
+TAR_CMD=$(HOST_TAR) -C $(1) $(TAR_OPTIONS)
+
 NODEJS_CPU:=$(subst powerpc,ppc,$(subst aarch64,arm64,$(subst x86_64,x64,$(subst i386,ia32,$(ARCH)))))
 TMPNPM:=$(shell mktemp -u XXXXXXXXXX)
 
 TARGET_CFLAGS+=$(FPIC)
 TARGET_CPPFLAGS+=$(FPIC)
-
-define Build/Prepare
-	$(INSTALL_DIR) $(PKG_BUILD_DIR)
-endef
 
 define Package/node-red/conffiles
 /etc/config/node-red
@@ -60,26 +59,36 @@ define Build/Compile
 	npm_config_prefix=$(PKG_INSTALL_DIR)/usr/ \
 	npm_config_cache=$(TMP_DIR)/npm-cache-$(TMPNPM) \
 	npm_config_tmp=$(TMP_DIR)/npm-tmp-$(TMPNPM) \
-	npm install -g $(DL_DIR)/$(PKG_SOURCE) --production
-	rm -rf $(PKG_INSTALL_DIR)/usr/lib/node_modules/moment/min
-	rm -rf $(PKG_INSTALL_DIR)/usr/lib/node_modules/moment/src
-	rm -rf $(PKG_INSTALL_DIR)/usr/lib/node_modules/moment/locale
-	rm -rf $(PKG_INSTALL_DIR)/usr/lib/node_modules/moment/ts3.1-typings
-
+	npm install -g --no-optional $(PKG_BUILD_DIR)
 	rm -rf $(TMP_DIR)/npm-tmp-$(TMPNPM)
 	rm -rf $(TMP_DIR)/npm-cache-$(TMPNPM)
 endef
 
 define Package/node-red/install
-	$(INSTALL_DIR) $(1)/usr/lib/node
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/* $(1)/usr/lib/node/
+	$(INSTALL_DIR) $(1)/usr/lib/node/$(PKG_NPM_NAME)
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/{package.json,LICENSE} \
+		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/{*.md,*.js} \
+		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/{node_modules,bin,lib} \
+		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(LN) ../lib/node/node-red/red.js $(1)/usr/bin/node-red
-	$(LN) ../lib/node/node-red/bin/node-red-pi $(1)/usr/bin/node-red-pi
+	$(LN) ../lib/node/$(PKG_NPM_NAME)/red.js $(1)/usr/bin/node-red
+	$(LN) ../lib/node/$(PKG_NPM_NAME)/bin/node-red-pi $(1)/usr/bin/node-red-pi
+	$(LN) ../lib/node/$(PKG_NPM_NAME)/node_modules/node-red-admin/node-red-admin.js \
+		$(1)/usr/bin/node-red-admin
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_BIN) ./files/node-red.conf $(1)/etc/config/node-red
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/node-red.init $(1)/etc/init.d/node-red
+	$(INSTALL_DIR) $(1)/usr/lib/node_modules
+	$(LN) ../node/$(PKG_NPM_NAME) $(1)/usr/lib/node_modules/$(PKG_NPM_NAME)
+endef
+
+define Package/node-red/postrm
+#!/bin/sh
+rm /usr/lib/node_modules/node-red || true
+rm -rf /usr/lib/node/node-red || true
 endef
 
 $(eval $(call BuildPackage,node-red))

@@ -7,20 +7,20 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=node
 
 ifeq ($(CONFIG_NODEJS_10),y)
-PKG_VERSION:=v10.22.1
+PKG_VERSION:=v10.23.0
 PKG_RELEASE:=2
-PKG_HASH:=f47f4725dcae137b26f8e2a7d0ab2c2c7f1f47e4f96834e6a9242f157132255f
+PKG_HASH:=fd356039d5c223f020db514b64e4619b285e669f8f5f0b6232458d4440c6741f
 PATCH_DIR:=./patches/v10.x
 else
 ifeq ($(CONFIG_NODEJS_14),y)
-PKG_VERSION:=v14.13.1
+PKG_VERSION:=v14.15.3
 PKG_RELEASE:=1
-PKG_HASH:=6061bd1e218c1e1f0a9fbc1643f501e8971d546a37028a26a1ee8ea93f6c15f6
+PKG_HASH:=32cfb19be9bd15cfdfaf842b29c80cc1c1c4b841a3b8ce05de74e1aca1cbf4fe
 PATCH_DIR:=./patches/v14.x
 else
-PKG_VERSION:=v12.19.0
-PKG_RELEASE:=1
-PKG_HASH:=3b671c45c493f96d7e018c15110cdbafa4478e5e5cfc9e6eec83cea9e6b551e1
+PKG_VERSION:=v12.20.0
+PKG_RELEASE:=2
+PKG_HASH:=61e3fd5c9af565e8d25403ce56b2c0097e2e3270381f2d4216573d48b3dc428b
 PATCH_DIR:=./patches/v12.x
 endif
 endif
@@ -52,7 +52,7 @@ define Package/node
   TITLE:=Node.js is a platform built on Chrome's JavaScript runtime
   URL:=https://nodejs.org/
   DEPENDS:=@(HAS_FPU||KERNEL_MIPS_FPU_EMULATOR) @!arc @!armeb @!powerpc \
-	   +libstdcpp +libopenssl +zlib +libnghttp2 +libuv \
+	   +libstdcpp +libopenssl +zlib +libnghttp2 \
 	   +libcares +libatomic +NODEJS_ICU_SYSTEM:icu +NODEJS_ICU_SYSTEM:icu-full-data
 endef
 
@@ -95,11 +95,11 @@ define Package/node/config
 			bool "10.x Maintenance LTS"
 
 		config NODEJS_12
-			bool "12.x Active LTS"
+			bool "12.x Maintenance LTS"
 
 		config NODEJS_14
 			depends on !(mips||mips64)
-			bool "14.x Current"
+			bool "14.x Active LTS"
 	endchoice
 
 	choice
@@ -153,7 +153,6 @@ CONFIGURE_ARGS:= \
 	--shared-zlib \
 	--shared-openssl \
 	--shared-nghttp2 \
-	--shared-libuv \
 	--shared-cares \
 	--with-intl=$(if $(CONFIG_NODEJS_ICU_SMALL),small-icu,$(if $(CONFIG_NODEJS_ICU_SYSTEM),system-icu,none)) \
 	$(if $(findstring mips,$(NODEJS_CPU)), \
@@ -186,6 +185,11 @@ define Package/node-npm/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(LN) ../lib/node_modules/npm/bin/npm-cli.js $(1)/usr/bin/npm
 	$(LN) ../lib/node_modules/npm/bin/npx-cli.js $(1)/usr/bin/npx
+endef
+
+define Package/node-npm/postrm
+#!/bin/sh
+rm -rf /usr/lib/node_modules/npm || true
 endef
 
 $(eval $(call HostBuild))
