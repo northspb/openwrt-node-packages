@@ -56,8 +56,7 @@ NPM_FLAGS=$(MAKE_VARS) \
 
 define Build/Prepare
 	mkdir -p $(PKG_BUILD_DIR)
-	git clone --branch dev https://github.com/Koenkk/zigbee2mqtt
-	$(CP) ./zigbee2mqtt/* $(PKG_BUILD_DIR)/
+	git clone --branch dev https://github.com/Koenkk/zigbee2mqtt $(PKG_BUILD_DIR)
 endef
 
 
